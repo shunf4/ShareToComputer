@@ -23,10 +23,7 @@ import android.os.Build
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
-import com.jim.sharetocomputer.AllOpen
-import com.jim.sharetocomputer.R
-import com.jim.sharetocomputer.ShareRequest
-import com.jim.sharetocomputer.WebServerService
+import com.jim.sharetocomputer.*
 import com.jim.sharetocomputer.coroutines.TestableDispatchers
 import com.jim.sharetocomputer.ext.isOnWifi
 import com.jim.sharetocomputer.logging.MyLog
@@ -39,7 +36,6 @@ class MainViewModel(val context: Context) : ViewModel() {
     fun setRequest(request: ShareRequest?) {
         if (request != null) {
             MyLog.i("request found $request")
-            if (!checkWifi()) return
             startWebService(request)
         } else {
             MyLog.i("no request")
@@ -47,6 +43,10 @@ class MainViewModel(val context: Context) : ViewModel() {
     }
 
     protected fun startWebService(request: ShareRequest) {
+        if (WebServerService.isRunning.value == true || WebUploadService.isRunning.value == true) {
+            Toast.makeText(context, R.string.another_instance, Toast.LENGTH_LONG).show()
+            return
+        }
         val intent = WebServerService.createIntent(context, request)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             MyLog.i("Starting web service foreground")

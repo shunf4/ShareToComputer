@@ -16,15 +16,35 @@
 */
 package com.jim.sharetocomputer
 
+import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
+import com.jim.sharetocomputer.ext.prioritizedIps
 import com.jim.sharetocomputer.logging.KoinLogger
 import com.jim.sharetocomputer.logging.MyLog
 import com.jim.sharetocomputer.logging.MyUncaughtExceptionHandler
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.take
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
+import java.net.Inet4Address
+import java.net.NetworkInterface
 
 
 open class Application : android.app.Application() {
+
+    val primaryIp = MediatorLiveData<String>().apply {
+        value = "unknown"
+        observeForever {  }
+    }
+
+    fun refreshPrimaryIp() {
+        primaryIp.value = prioritizedIps().firstOrNull() ?: "not available"
+        MyLog.i("refreshed IP: ${primaryIp.value}")
+    }
 
     override fun onCreate() {
         super.onCreate()

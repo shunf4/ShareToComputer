@@ -5,7 +5,7 @@
     <string name="channel_name">Default notification</string>
     <string name="channel_description">Common notification</string>
     <string name="notification_title">&appname;</string>
-    <string name="notification_server_text">Open from your browser http://%1$s:%2$s</string>
+    <string name="notification_server_text">Open from your browser \n%1$s</string>
     <string name="download_url">http://%1$s:%2$s</string>
     <string name="about">About</string>
     <string name="version">Version</string>
@@ -53,4 +53,6 @@
     <string name="stop_receiving">Stop receiving</string>
     <string name="upload_from_your_browser">Upload from your browser</string>
     <string name="info_success_web_upload">File successfully received. Click to open</string>
+    <string name="copy_primary_url">Copy Primary URL</string>
+    <string name="another_instance">Fail: another server is already running.</string>
 </resources>

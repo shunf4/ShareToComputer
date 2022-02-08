@@ -27,7 +27,7 @@
             name="viewModel"
             type="com.jim.sharetocomputer.ui.receive.ReceiveViewModel" />
     </data>
-    
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -81,6 +81,7 @@
                 android:id="@+id/browser_instruction"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:maxLines="4"
                 android:gravity="start"
                 android:text="@string/upload_from_your_browser"
                 android:textSize="18sp"
@@ -93,10 +94,20 @@
                 android:layout_marginTop="5dp"
                 android:background="@android:color/darker_gray"
                 android:gravity="center"
-                android:text="@{@string/download_url(viewModel.deviceIp(), viewModel.devicePort())}"
+                android:text="@{viewModel.serverBaseUrls()}"
                 android:textIsSelectable="true"
                 android:textSize="20sp"
                 tools:text="http://192.168.0.2:8080" />
+
+            <Button
+                android:id="@+id/copy_primary_url"
+                style="@style/AppTheme.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/button_round_corner_primary"
+                android:onClick="@{() -> viewModel.copyPrimaryUrl()}"
+                android:text="@string/copy_primary_url" />
 
             <Button
                 android:id="@+id/stop_share"

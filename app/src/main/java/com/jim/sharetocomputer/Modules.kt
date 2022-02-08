@@ -18,7 +18,6 @@ package com.jim.sharetocomputer
 
 import androidx.fragment.app.Fragment
 import com.jim.sharetocomputer.gateway.ActivityHelper
-import com.jim.sharetocomputer.gateway.WifiApi
 import com.jim.sharetocomputer.ui.main.MainViewModel
 import com.jim.sharetocomputer.ui.receive.ReceiveNavigation
 import com.jim.sharetocomputer.ui.receive.ReceiveViewModel
@@ -36,13 +35,11 @@ val applicationModule = module {
     factory { (port: Int) -> WebServerSingleFile(get(), port) }
     factory { (port: Int) -> WebServerMultipleFiles(get(), port) }
     factory { (fragment: Fragment) -> SettingNavigation(fragment) }
-    factory { WifiApi(get()) }
     factory { ActivityHelper() }
-    viewModel { SendViewModel(get(), get(), get()) }
+    viewModel { SendViewModel(get(), get()) }
     viewModel { MainViewModel(get()) }
     viewModel { (fragment: Fragment) ->
         ReceiveViewModel(
-            get(),
             get(),
             ReceiveNavigation(fragment, get())
         )

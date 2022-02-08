@@ -8,8 +8,12 @@ import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.provider.OpenableColumns
+import com.jim.sharetocomputer.Application
 import com.jim.sharetocomputer.R
 import com.jim.sharetocomputer.logging.MyLog
+import java.net.Inet4Address
+import java.net.InetAddress
+import java.net.NetworkInterface
 
 
 internal fun Context.getAppName(): String = getString(R.string.app_name)
@@ -33,24 +37,47 @@ internal fun Context.getFileName(uri: Uri): String {
     return result ?: "unknown"
 }
 
-internal fun Context.getIp(): String {
-    val wifiManager =
-        applicationContext?.getSystemService(Context.WIFI_SERVICE) as WifiManager?
-    if (wifiManager == null) {
-        MyLog.e("Failed to get phone IP address - WifiManager null")
-        return "0.0.0.0"
-    }
-    val ipAddress = wifiManager.connectionInfo.ipAddress
-    val ipAddressFormat = String.format(
-        "%d.%d.%d.%d",
-        ipAddress and 0xff,
-        ipAddress shr 8 and 0xff,
-        ipAddress shr 16 and 0xff,
-        ipAddress shr 24 and 0xff
-    )
-    MyLog.i("IP address: $ipAddressFormat")
-    return ipAddressFormat
+internal fun Context.getPrimaryIp(): String {
+    MyLog.i("Primary Ip: ${(applicationContext as Application).primaryIp.value!!}")
+    return (applicationContext as Application).primaryIp.value!!
 }
+
+public fun getUrl(ip: String, port: Int) = "http://$ip:$port"
+
+internal fun Context.getPrimaryUrl(port: Int): String = getUrl(getPrimaryIp(), port)
+
+public fun prioritizedIps(): List<String> {
+    val intfs = ArrayList(NetworkInterface.getNetworkInterfaces().toList())
+    intfs.sortByDescending {
+        if (it.displayName.matches(Regex("wlan.*"))) {
+            return@sortByDescending 1000
+        }
+        if (it.displayName.matches(Regex("rmnet.*"))) {
+            return@sortByDescending 500
+        }
+        return@sortByDescending 10
+    }
+    return intfs.flatMap { intf ->
+        Iterable { intf.inetAddresses.asSequence().filter { addr ->
+            !addr.isLoopbackAddress && !addr.isLinkLocalAddress
+        }.iterator() }
+    }.sortedByDescending { ip ->
+        if (ip is Inet4Address) {
+            1000
+        } else {
+            0
+        }
+    }.map { it.hostAddress }.filterNotNull()
+}
+
+public fun getServerBaseUrlsFromIpPort(primaryIp: String, port: Int): String {
+    val ipAddrs = prioritizedIps()
+
+    MyLog.i("IP address: ${ipAddrs.joinToString()}")
+    return ipAddrs.map { "http://$it:$port" }.joinToString("\n")
+}
+
+internal fun Context.getServerBaseUrls(port: Int): String = getServerBaseUrlsFromIpPort(getPrimaryIp(), port)
 
 internal fun Context.getAppVersionName(): String {
     var v = ""

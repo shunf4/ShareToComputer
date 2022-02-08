@@ -23,51 +23,89 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.net.NetworkInfo
+import android.net.*
 import android.net.wifi.WifiManager
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.MutableLiveData
-import com.jim.sharetocomputer.ext.getIp
+import com.jim.sharetocomputer.coroutines.TestableDispatchers
+import com.jim.sharetocomputer.ext.getPrimaryUrl
+import com.jim.sharetocomputer.ext.getServerBaseUrls
 import com.jim.sharetocomputer.logging.MyLog
 import com.jim.sharetocomputer.webserver.WebServer
 import com.jim.sharetocomputer.webserver.WebServerMultipleFiles
 import com.jim.sharetocomputer.webserver.WebServerSingleFile
 import com.jim.sharetocomputer.webserver.WebServerText
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.core.parameter.parametersOf
 import java.io.IOException
+import java.net.Inet4Address
 import java.net.ServerSocket
 
 class WebServerService : Service() {
 
     private var webServer: WebServer? = null
     private var stopper: StopperThread? = null
-    private val wifiListener = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            val info = intent?.getParcelableExtra<NetworkInfo>(WifiManager.EXTRA_NETWORK_INFO)
-            if (info == null || !info.isConnected) {
-                MyLog.i("Stopping service because Wi-Fi disconnected")
-                stopSelf()
-            }
-        }
-    }
+    private var request: ShareRequest? = null
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
+    private var wlanStatusReceiver: BroadcastReceiver? = null
 
     override fun onCreate() {
         super.onCreate()
         isRunning.value = true
-        val filter = IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION)
-        registerReceiver(wifiListener, filter)
+
+        val refreshIpAndRestart = {
+            GlobalScope.launch(TestableDispatchers.Main) {
+                (application as Application).refreshPrimaryIp()
+                restart()
+            }
+        }
+
+        val networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onLosing(network: Network, maxMsToLive: Int) {
+                refreshIpAndRestart()
+            }
+
+            override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
+                refreshIpAndRestart()
+            }
+        }
+
+        (getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager).registerNetworkCallback(
+            NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+                .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
+                .build(),
+            networkCallback
+        )
+
+        this.networkCallback = networkCallback
+
+        val wlanStatusReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                Handler().postDelayed({ refreshIpAndRestart() }, 1000)
+            }
+        }
+        registerReceiver(wlanStatusReceiver, IntentFilter().apply {
+            addAction("android.net.wifi.WIFI_AP_STATE_CHANGED")
+            addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION)
+        })
+        this.wlanStatusReceiver = wlanStatusReceiver
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        MyLog.i("onStartCommand")
-        startForeground(NOTIFICATION_ID, createNotification())
-        intent?.getParcelableExtra<ShareRequest>(EXTRA_REQUEST)?.let { request ->
-            webServer?.stop()
-            stopper?.cancel()
+    fun restart() {
+        webServer?.stop()
+        stopper?.cancel()
+
+        request?.let { request ->
             val port = findFreePort()
             webServer = when (request) {
                 is ShareRequest.ShareRequestText -> get<WebServerText>(parameters = {
@@ -102,7 +140,15 @@ class WebServerService : Service() {
             WebServerService.port.value = port
             webServer!!.start()
             startForeground(NOTIFICATION_ID, createNotification())
+        }
+    }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        MyLog.i("onStartCommand")
+        startForeground(NOTIFICATION_ID, createNotification())
+        intent?.getParcelableExtra<ShareRequest>(EXTRA_REQUEST)?.let { request ->
+            this.request = request
+            restart()
             return START_STICKY
         }
 
@@ -153,9 +199,14 @@ class WebServerService : Service() {
             .setContentText(
                 getString(
                     R.string.notification_server_text,
-                    this.getIp(),
-                    WebServerService.port.value.toString()
+                    this.getPrimaryUrl(WebServerService.port.value!!)
                 )
+            )
+            .setStyle(NotificationCompat.BigTextStyle()
+                .bigText(getString(
+                    R.string.notification_server_text,
+                    this.getServerBaseUrls(WebServerService.port.value!!)
+                ))
             )
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .addAction(
@@ -167,7 +218,14 @@ class WebServerService : Service() {
 
     override fun onDestroy() {
         MyLog.i("onDestroy")
-        unregisterReceiver(wifiListener)
+        networkCallback?.let {
+            (getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager).unregisterNetworkCallback(
+                it
+            )
+        }
+        wlanStatusReceiver?.let {
+            unregisterReceiver(wlanStatusReceiver)
+        }
         webServer?.stop()
         stopper?.cancel()
         isRunning.value = false

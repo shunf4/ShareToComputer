@@ -32,10 +32,9 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.jim.sharetocomputer.Application
 import com.jim.sharetocomputer.R
+import com.jim.sharetocomputer.ext.*
 import com.jim.sharetocomputer.ext.getAppVersionCode
 import com.jim.sharetocomputer.ext.getAppVersionName
-import com.jim.sharetocomputer.ext.getIp
-import com.jim.sharetocomputer.ext.isOnWifi
 import com.jim.sharetocomputer.logging.MyLog
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
@@ -99,7 +98,7 @@ class SettingFragment : PreferenceFragmentCompat() {
             StringBuilder("${context.getString(R.string.feedback_email_body)}\n\n--------------------\n")
         info.append("Version: ${context.getAppVersionName()}(${context.getAppVersionCode()})\n")
         info.append("Phone: ${Build.BRAND}|${Build.MODEL}|${Build.BOARD}|${Build.DEVICE}\n")
-        info.append("Wifi: ${context.isOnWifi()}|${context.getIp()}\n")
+        info.append("Ip: ${context.getPrimaryIp()}\n")
         return info.toString()
     }
 

@@ -42,7 +42,7 @@ import kotlin.coroutines.suspendCoroutine
 @AllOpen
 class ReceiveNavigation(val fragment: Fragment, val activityHelper: ActivityHelper): KoinComponent {
 
-    suspend fun openScanQrCode() = suspendCoroutine<QrCodeInfo?> { cont ->
+    suspend fun openScanQrCode() = suspendCoroutine<String?> { cont ->
         activityHelper.startQrCodeScan(fragment.activity!!)?.let { result ->
             val resultQrCode: IntentResult? = IntentIntegrator.parseActivityResult(
                 IntentIntegrator.REQUEST_CODE,
@@ -50,7 +50,7 @@ class ReceiveNavigation(val fragment: Fragment, val activityHelper: ActivityHelp
                 result.resultData
             )
             try {
-                cont.resume(Gson().fromJson(resultQrCode!!.contents, QrCodeInfo::class.java))
+                cont.resume(resultQrCode!!.contents)
                 return@suspendCoroutine
             } catch (e: JsonSyntaxException) {
                 MyLog.w("Error on parsing QR Code result", e)

@@ -28,6 +28,7 @@
 
         <activity
             android:exported="true"
+            android:launchMode="singleTop"
             android:name=".ui.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -57,9 +58,7 @@
             android:taskAffinity="" />
 
         <activity
-            android:name="com.journeyapps.barcodescanner.CaptureActivity"
-            android:screenOrientation="portrait"
-            tools:replace="screenOrientation" />
+            android:name="com.journeyapps.barcodescanner.CaptureActivity" />
 
         <activity android:name=".ui.DummyActivity" />
 
