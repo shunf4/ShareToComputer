@@ -84,7 +84,7 @@ class WebServerMultipleFiles(private val context: Context, port: Int) : WebServe
             content = String(it.readBytes())
                 .replace("[[title]]", context.getAppName())
                 .replace("[[tbody]]", generateTbody())
-                .toByteArray()
+                .toByteArray(Charsets.UTF_8)
         }
         return newFixedLengthResponse(
             Response.Status.OK,
