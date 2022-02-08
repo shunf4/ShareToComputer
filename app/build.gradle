@@ -7,11 +7,11 @@ apply plugin: 'jacoco'
 apply plugin: "kotlin-allopen"
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 31
     defaultConfig {
         applicationId "com.jim.sharetocomputer"
-        minSdkVersion 23
-        targetSdkVersion 29
+        minSdkVersion 24
+        targetSdkVersion 31
         versionCode 2000
         versionName "2.0.0"
         testInstrumentationRunner "com.jim.sharetocomputer.TestRunner"

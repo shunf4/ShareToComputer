@@ -52,19 +52,6 @@ class MainActivity : AppCompatActivity() {
         }
         navController = Navigation.findNavController(this, R.id.main_nav_fragment)
         navController.setGraph(R.navigation.nav_main, bundle)
-
-        if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-            || checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ),
-                1
-            )
-        }
     }
 
     override fun onDestroy() {
