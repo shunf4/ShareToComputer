@@ -4,6 +4,8 @@ Share any files from your phone to your computer & other phones through wifi
 
 Forked from [jimmod](https://github.com/jimmod/ShareToComputer), with fixes and features:
 
+- Fix crashes related to missing flag for PendingIntent on Android S
+- Workaround for using [SimpleGallery](https://github.com/SimpleMobileTools/Simple-Gallery) for media picking (https://github.com/SimpleMobileTools/Simple-Gallery/issues/1942)
 - Add /kill stops sharing (credits to [NWuensche](https://github.com/NWuensche))
 - Show Logo as Favicon on Computer (credits to [NWuensche](https://github.com/NWuensche))
 - Support all network types & Improve display of addresses/URLs (https://github.com/jimmod/ShareToComputer/issues/51)
