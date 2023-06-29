@@ -149,7 +149,7 @@ class WebServerReceive(val context: Context, port: Int) : WebServer(port) {
         }
         val openFilePendingIntent = TaskStackBuilder.create(context).run {
             addNextIntentWithParentStack(openFileIntent)
-            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
         val builder = NotificationCompat.Builder(context, Application.CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)

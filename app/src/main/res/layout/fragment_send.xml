@@ -38,6 +38,17 @@
                 android:text="@string/share_image_video" />
 
             <Button
+                android:id="@+id/share_media_image_only"
+                style="@style/AppTheme.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/button_round_corner_primary"
+                android:enabled="@{viewModel.isAbleToShare()}"
+                android:onClick="@{() -> viewModel.selectImageOnly()}"
+                android:text="@string/share_media_image_only" />
+
+            <Button
                 android:id="@+id/share_file"
                 style="@style/AppTheme.Button"
                 android:layout_width="match_parent"

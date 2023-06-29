@@ -103,6 +103,23 @@ class SendViewModel(context: Context, val activityHelper: ActivityHelper) :
             val intent =
                 Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).apply {
                     type = "*/*"
+                    putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*"))
+                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                }
+            activityHelper.startActivityForResult(activity, intent)?.let { result ->
+                handleSelectFileResult(result)
+            }
+        }
+    }
+
+    // Workaround for https://github.com/SimpleMobileTools/Simple-Gallery/issues/1942 for Simple Gallery...
+    fun selectImageOnly() {
+        MyLog.i("Select Image Only")
+        GlobalScope.launch(TestableDispatchers.Default) {
+            val intent =
+                Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).apply {
+                    type = "image/*"
+                    putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*"))
                     putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
                 }
             activityHelper.startActivityForResult(activity, intent)?.let { result ->

@@ -191,7 +191,7 @@ class WebServerService : Service() {
         val stopIntent = ActionActivity.stopShareIntent(this)
         val stopPendingIntent = TaskStackBuilder.create(this).run {
             addNextIntentWithParentStack(stopIntent)
-            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
         val builder = NotificationCompat.Builder(this, Application.CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
