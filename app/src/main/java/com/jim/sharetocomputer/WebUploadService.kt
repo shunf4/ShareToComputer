@@ -39,6 +39,7 @@ import com.jim.sharetocomputer.coroutines.TestableDispatchers
 import com.jim.sharetocomputer.ext.getPrimaryUrl
 import com.jim.sharetocomputer.ext.getServerBaseUrls
 import com.jim.sharetocomputer.logging.MyLog
+import com.jim.sharetocomputer.ui.main.MainActivity
 import com.jim.sharetocomputer.webserver.WebServerReceive
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -143,7 +144,7 @@ class WebUploadService : Service() {
             val notificationManager = NotificationManagerCompat.from(this)
             notificationManager.createNotificationChannel(channel)
         }
-        val stopIntent = ActionActivity.stopShareIntent(this)
+        val stopIntent = ActionActivity.stopReceivingIntent(this)
         val stopPendingIntent = TaskStackBuilder.create(this).run {
             addNextIntentWithParentStack(stopIntent)
             getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
@@ -164,8 +165,15 @@ class WebUploadService : Service() {
                 ))
             )
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(TaskStackBuilder.create(this).run {
+                addNextIntentWithParentStack(Intent(this@WebUploadService, MainActivity::class.java).apply {
+                    action = "com.jim.sharetocomputer.VIEW_SERVE"
+                    putExtra("viewTabPos", 1)
+                })
+                getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            })
             .addAction(
-                R.mipmap.ic_launcher, getString(R.string.stop_share),
+                R.mipmap.ic_launcher, getString(R.string.stop_receiving),
                 stopPendingIntent
             )
         return builder.build()
@@ -195,6 +203,10 @@ class WebUploadService : Service() {
 
         var isRunning = MutableLiveData<Boolean>().apply { value = false }
         var port = MutableLiveData<Int>().apply { value = 8080 }
+
+        fun createIntent(context: Context): Intent {
+            return Intent(context, WebUploadService::class.java)
+        }
     }
 }
 

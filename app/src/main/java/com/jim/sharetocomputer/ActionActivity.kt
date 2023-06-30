@@ -18,6 +18,9 @@ class ActionActivity : AppCompatActivity() {
         } else if (action == ACTION_STOP_DOWNLOAD) {
             MyLog.i("*Stopping download service")
             stopService(DownloadService.createIntent(this, null))
+        } else if (action == ACTION_STOP_RECEIVING) {
+            MyLog.i("*Stopping receiving service")
+            stopService(WebUploadService.createIntent(this))
         }
         finish()
     }
@@ -25,9 +28,14 @@ class ActionActivity : AppCompatActivity() {
     companion object {
         const val ACTION_STOP_SHARE = "com.jim.sharetocomputer.STOP_SHARE"
         const val ACTION_STOP_DOWNLOAD = "com.jim.sharetocomputer.STOP_DOWNLOAD"
+        const val ACTION_STOP_RECEIVING = "com.jim.sharetocomputer.STOP_RECEIVING"
 
         fun stopShareIntent(context: Context) = Intent(context, ActionActivity::class.java).apply {
             action = ACTION_STOP_SHARE
+        }
+
+        fun stopReceivingIntent(context: Context) = Intent(context, ActionActivity::class.java).apply {
+            action = ACTION_STOP_RECEIVING
         }
 
         fun stopDownloadIntent(context: Context) =

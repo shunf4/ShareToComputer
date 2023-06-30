@@ -44,12 +44,23 @@ class MainActivity : AppCompatActivity() {
             R.layout.activity_main
         )
 
-        val request: ShareRequest? = intent.generateShareRequest()
-        val bundle = if (request != null) {
+        var request: ShareRequest? = null
+        var viewTabPos: Int? = null
+
+        if (intent.action == "com.jim.sharetocomputer.VIEW_SERVE") {
+            viewTabPos = intent.getIntExtra("viewTabPos", -1)
+        } else {
+            request = intent.generateShareRequest()
+        }
+
+        val bundle = if (viewTabPos != null) {
+            MainFragment.createViewTabBundle(viewTabPos)
+        } else if (request != null) {
             MainFragment.createBundle(request)
         } else {
             Bundle()
         }
+
         navController = Navigation.findNavController(this, R.id.main_nav_fragment)
         navController.setGraph(R.navigation.nav_main, bundle)
     }

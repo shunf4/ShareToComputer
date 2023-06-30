@@ -49,6 +49,12 @@ class MainFragment : Fragment() {
             mainViewModel.setRequest(it)
         }
 
+        (arguments?.getInt(ARGS_VIEW_TAB, -1))?.let {
+            if (it != -1) {
+                binding.viewPager.currentItem = it
+            }
+        }
+
         return binding.root
     }
 
@@ -59,10 +65,17 @@ class MainFragment : Fragment() {
 
     companion object {
         private const val ARGS_REQUEST = "request"
+        private const val ARGS_VIEW_TAB = "viewTabPos"
 
         fun createBundle(request: ShareRequest): Bundle {
             return Bundle().apply {
                 putParcelable(ARGS_REQUEST, request)
+            }
+        }
+
+        fun createViewTabBundle(position: Int): Bundle {
+            return Bundle().apply {
+                putInt(ARGS_VIEW_TAB, position)
             }
         }
     }

@@ -36,6 +36,7 @@ import com.jim.sharetocomputer.coroutines.TestableDispatchers
 import com.jim.sharetocomputer.ext.getPrimaryUrl
 import com.jim.sharetocomputer.ext.getServerBaseUrls
 import com.jim.sharetocomputer.logging.MyLog
+import com.jim.sharetocomputer.ui.main.MainActivity
 import com.jim.sharetocomputer.webserver.WebServer
 import com.jim.sharetocomputer.webserver.WebServerMultipleFiles
 import com.jim.sharetocomputer.webserver.WebServerSingleFile
@@ -209,6 +210,13 @@ class WebServerService : Service() {
                 ))
             )
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(TaskStackBuilder.create(this).run {
+                addNextIntentWithParentStack(Intent(this@WebServerService, MainActivity::class.java).apply {
+                    action = "com.jim.sharetocomputer.VIEW_SERVE"
+                    putExtra("viewTabPos", 0)
+                })
+                getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            })
             .addAction(
                 R.mipmap.ic_launcher, getString(R.string.stop_share),
                 stopPendingIntent
