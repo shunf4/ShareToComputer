@@ -17,8 +17,9 @@ android {
         testInstrumentationRunner "com.jim.sharetocomputer.TestRunner"
     }
 
-    dataBinding {
-        enabled = true
+    buildFeatures {
+        dataBinding = true
+        viewBinding true
     }
 
     buildTypes {
@@ -101,7 +102,7 @@ dependencies {
 
 // Other
     implementation 'org.nanohttpd:nanohttpd:2.3.1'
-    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
     implementation 'com.elvishew:xlog:1.6.1'
 

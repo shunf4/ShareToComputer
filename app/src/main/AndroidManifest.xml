@@ -27,16 +27,17 @@
         android:usesCleartextTraffic="true">
 
         <activity
-            android:exported="true"
             android:launchMode="singleTop"
             android:name=".ui.main.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter>
+            <intent-filter >
                 <action android:name="android.intent.action.SEND" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -53,19 +54,25 @@
         </activity>
 
         <activity
+            android:exported="false"
             android:name=".ActionActivity"
             android:excludeFromRecents="true"
             android:taskAffinity="" />
 
         <activity
+            android:exported="false"
             android:name="com.journeyapps.barcodescanner.CaptureActivity" />
 
-        <activity android:name=".ui.DummyActivity" />
+        <activity
+            android:exported="false"
+            android:name=".ui.DummyActivity" />
 
         <service
+            android:exported="false"
             android:name=".WebServerService"
             android:enabled="true" />
         <service
+            android:exported="false"
             android:name=".DownloadService"
             android:enabled="true" />
         <service android:name=".WebUploadService" />
